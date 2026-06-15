@@ -27,6 +27,7 @@ from tvkit import OHLCV, DataExporter
 from tvkit.quickstart import compare_stocks, get_crypto_prices, get_stock_price
 from tvkit.symbols import normalize_symbol
 
+# --- change by enest 2026 07 ---
 # --- 可选依赖 ---
 try:
     from tvkit.api.scanner import Market, ScannerService

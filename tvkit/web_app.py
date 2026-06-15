@@ -846,7 +846,7 @@ async def api_scanner(
             range_end=limit,
         )
         result = await scanner.scan_market(market=market_enum, request=request)
-        return [r.model_dump() for r in result.stocks] if result else []
+        return [r.model_dump() for r in result.data] if result else []
 
 
 # --- 6. 批量下载 ---
@@ -891,9 +891,9 @@ async def api_batch(
     summary = await batch_download(request)
     return {
         r.symbol: {
-            "bar_count": r.bar_count if r.success else None,
+            "bar_count": len(r.bars) if r.success else 0,
             "error": r.error.message if r.error else None,
-            "date_range": f"{r.first_bar_timestamp} - {r.last_bar_timestamp}" if r.success and r.first_bar_timestamp else None,
+            "date_range": f"{r.bars[0].timestamp} - {r.bars[-1].timestamp}" if r.success and r.bars else None,
         }
         for r in summary.results
     }

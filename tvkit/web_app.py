@@ -31,12 +31,14 @@ from tvkit.symbols import normalize_symbol
 # --- 可选依赖 ---
 try:
     from tvkit.api.scanner import Market, ScannerService
+    from tvkit.api.scanner.models import create_scanner_request
 
     _has_scanner = True
 except ImportError:
     _has_scanner = False
     Market = None  # type: ignore
     ScannerService = None  # type: ignore
+    create_scanner_request = None  # type: ignore
 
 try:
     from tvkit.batch.downloader import batch_download
@@ -103,6 +105,7 @@ INDEX_HTML = r"""<!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.0/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0/dist/chartjs-adapter-luxon.min.js"></script>
 <style>
   :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #e2e8f0;
           --muted: #94a3b8; --accent: #38bdf8; --green: #34d399; --red: #f87171;
@@ -838,11 +841,11 @@ async def api_scanner(
         return {"error": f"不支持的市场: {market}，可用: {list(MARKET_LIST.keys())}"}
 
     async with ScannerService() as scanner:
-        result = await scanner.scan_market(
-            market=market_enum,
+        request = create_scanner_request(
             preset=preset,
-            range=(0, limit),
+            range_end=limit,
         )
+        result = await scanner.scan_market(market=market_enum, request=request)
         return [r.model_dump() for r in result.stocks] if result else []
 
 
